@@ -2,15 +2,22 @@
 const request = require('supertest')
 const should = require('should');
 const app = require('../../index');
+const models = require('../../models');
+
 describe('GET /users는 ',()=>{
+    const users = [{name: 'alice'},{name: 'bek'},{name:'chris'}]
+        before(()=>models.sequelize.sync({force:true}));
+        before(()=>models.User.bulkCreate(users));
     describe('성공시', ()=>{
+        
         it('유저 객체를 담은 배열로 응답한',(done)=>{
             request(app)
             .get('/users')
             .end((err,res)=>{
+                //console.log("asdfsadf",res.body)
                 res.body.should.be.instanceOf(Array)
+                done();
             })
-            done();
         })
 
         it('최대 limit 갯수만큼 응답한다',(done)=>{
@@ -18,8 +25,9 @@ describe('GET /users는 ',()=>{
             .get('/users?limit=2')
             .end((err,res)=>{
                 res.body.should.have.lengthOf(2)
+                done();
             })
-            done();
+           
         })
 
 
@@ -36,6 +44,9 @@ describe('GET /users는 ',()=>{
 })
 
 describe('GET /users/1 는', ()=>{
+    const users = [{name: 'alice'},{name: 'bek'},{name:'chris'}]
+        before(()=>models.sequelize.sync({force:true}));
+        before(()=>models.User.bulkCreate(users));
     describe('성공시',()=>{
         it('id가 1인 유저 객체를 반환한다',(done)=>{
             request(app)
@@ -63,6 +74,9 @@ describe('GET /users/1 는', ()=>{
 })
 
 describe('DELETE /users/1',()=>{
+    const users = [{name: 'alice'},{name: 'bek'},{name:'chris'}]
+        before(()=>models.sequelize.sync({force:true}));
+        before(()=>models.User.bulkCreate(users));
     describe('성공시',()=>{
         it('204를 응답한다',(done)=>{
             request(app)
@@ -82,6 +96,9 @@ describe('DELETE /users/1',()=>{
 })
 
 describe('POST /users',()=>{
+    const users = [{name: 'alice'},{name: 'bek'},{name:'chris'}]
+        before(()=>models.sequelize.sync({force:true}));
+        before(()=>models.User.bulkCreate(users));
     describe('성공시',()=>{
         let body ;
         let name = 'daniel'
@@ -121,6 +138,9 @@ describe('POST /users',()=>{
 })
 
 describe('PUT /users/:id', ()=>{
+    const users = [{name: 'alice'},{name: 'bek'},{name:'chris'}]
+        before(()=>models.sequelize.sync({force:true}));
+        before(()=>models.User.bulkCreate(users));
     describe('성공시',()=>{
         it('변경된 name을 응답한다',done=>{
             const name  = 'den';
@@ -159,7 +179,7 @@ describe('PUT /users/:id', ()=>{
         })
         it('이름이 중복일 경우 409을 응답한다',done=>{
             request(app)
-                .put('/users/2')
+                .put('/users/3')
                 .send({name: 'bek'})
                 .expect(409)
                 .end(done);
